@@ -1,34 +1,72 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
+import { weatherService } from './services/weatherService'
+import type { WeatherForecast } from './services/weatherService'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [weatherData, setWeatherData] = useState<WeatherForecast[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await weatherService.getForecast()
+        setWeatherData(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch weather data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchWeatherData()
+  }, [])
+
+  if (loading) {
+    return <div className="loading">Loading weather data...</div>
+  }
+
+  if (error) {
+    return (
+      <div className="error">
+        <h2>Error</h2>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    )
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="weather-app">
+      <h1>Weather Forecast</h1>
+      <div className="weather-table-container">
+        <table className="weather-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Location</th>
+              <th>Temperature (°C)</th>
+              <th>Temperature (°F)</th>
+              <th>Summary</th>
+            </tr>
+          </thead>
+          <tbody>
+            {weatherData.map((forecast, index) => (
+              <tr key={index}>
+                <td>{new Date(forecast.date).toLocaleDateString()}</td>
+                <td>{forecast.location}</td>
+                <td>{forecast.temperatureC}°C</td>
+                <td>{forecast.temperatureF}°F</td>
+                <td>{forecast.summary}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
