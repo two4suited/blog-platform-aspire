@@ -54,8 +54,8 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {weatherData.map((forecast, index) => (
-              <tr key={index}>
+            {weatherData.map((forecast) => (
+              <tr key={forecast.id}>
                 <td>{new Date(forecast.date).toLocaleDateString()}</td>
                 <td>{forecast.location}</td>
                 <td>{forecast.temperatureC}°C</td>

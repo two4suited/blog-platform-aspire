@@ -11,10 +11,14 @@ var cosmos = builder.AddAzureCosmosDB("cosmos").RunAsPreviewEmulator(
 #pragma warning restore ASPIRECOSMOSDB001
 
 var database = cosmos.AddCosmosDatabase("WeatherDB");
-var container = database.AddContainer("WeatherData", "/id");
+var container = database.AddContainer("WeatherData", "/location");
 
 var api = builder.AddProject<Projects.WeatherApp_Api>("weatherapi")
     .WithReference(container);
+
+var seeder = builder.AddProject<Projects.WeatherApp_Seed>("weatherseeder")
+    .WithReference(container)
+    .WithExplicitStart();
 
 var frontend = builder.AddViteApp("frontend", "../WeatherApp.Web")
     .WithNpmPackageInstallation()

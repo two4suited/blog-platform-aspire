@@ -12,8 +12,11 @@ public class WeatherContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<WeatherForecast>()
-            .ToContainer("WeatherData")
-            .HasPartitionKey(w => w.Date);
+        modelBuilder.Entity<WeatherForecast>(entity =>
+        {
+            entity.ToContainer("WeatherData");
+            entity.HasKey(w => w.Id);
+            entity.HasPartitionKey(w => w.Location);
+        });
     }
 }
