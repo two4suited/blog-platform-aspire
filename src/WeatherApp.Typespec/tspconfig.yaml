@@ -1,0 +1,11 @@
+emit:
+  - "@typespec/openapi3"
+  - "@typespec/http-server-csharp"
+options:
+  "@typespec/openapi3":
+    emitter-output-dir: "{output-dir}/../../generated/openapi"
+  "@typespec/http-server-csharp":
+    emitter-output-dir: "{output-dir}/../../WeatherApp.Api"
+    emit-mocks: none
+  
+

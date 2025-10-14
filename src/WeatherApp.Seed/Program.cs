@@ -9,7 +9,7 @@ builder.AddServiceDefaults();
 builder.AddCosmosDbContext<WeatherContext>("WeatherData");
 
 // Register weather services from the Data project
-builder.Services.AddWeatherServices();
+
 
 builder.Services.AddHostedService<Worker>();
 

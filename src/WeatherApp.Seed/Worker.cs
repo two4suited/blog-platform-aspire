@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WeatherApp.Data;
 
 namespace WeatherApp.Seed;
@@ -20,11 +21,12 @@ public class Worker : BackgroundService
         _logger.LogInformation("Weather Seeder starting at: {time}", DateTimeOffset.Now);
         
         using var scope = _serviceScopeFactory.CreateScope();
-        var weatherService = scope.ServiceProvider.GetRequiredService<IWeatherService>();
+        var weatherContext = scope.ServiceProvider.GetRequiredService<WeatherContext>();
         
-        // Check if data already exists
-        var existingForecasts = await weatherService.GetAllForecastsAsync();
-        if (existingForecasts.Any())
+        // Check if data already exists - use FirstOrDefault for better Cosmos DB compatibility
+        var firstForecast = await weatherContext.WeatherForecasts
+            .FirstOrDefaultAsync(stoppingToken);
+        if (firstForecast != null)
         {
             _logger.LogInformation("Weather data already exists. Skipping seed.");
             _hostApplicationLifetime.StopApplication();
@@ -58,11 +60,14 @@ public class Worker : BackgroundService
             ))
             .ToArray();
 
+        // Add all forecasts to the context
+        await weatherContext.WeatherForecasts.AddRangeAsync(forecasts, stoppingToken);
+        await weatherContext.SaveChangesAsync(stoppingToken);
+
         foreach (var forecast in forecasts)
         {
-            await weatherService.AddForecastAsync(forecast);
-            _logger.LogInformation("Added forecast: {Date} - {Summary} - {TempC}°C", 
-                forecast.Date, forecast.Summary, forecast.TemperatureC);
+            _logger.LogInformation("Added forecast: {Date} - {Location} - {Summary} - {TempC}°C", 
+                forecast.Date, forecast.Location, forecast.Summary, forecast.TemperatureC);
         }
         
         _logger.LogInformation("Weather Seeder completed seeding {Count} forecasts at: {time}", 
