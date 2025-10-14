@@ -20,6 +20,11 @@ var seeder = builder.AddProject<Projects.WeatherApp_Seed>("weatherseeder")
     .WithReference(container)
     .WithExplicitStart();
 
+var swagger = builder.AddContainer("swagger-ui", "swaggerapi/swagger-ui")
+    .WithBindMount("../generated/openapi/openapi.yaml", "/usr/share/nginx/html/openapi.yaml")
+    .WithEnvironment("SWAGGER_JSON_URL", "/openapi.yaml")
+    .WithHttpEndpoint(targetPort: 8080, name: "swagger");
+
 var frontend = builder.AddViteApp("frontend", "../WeatherApp.Web")
     .WithNpmPackageInstallation()
     .WithReference(api)
