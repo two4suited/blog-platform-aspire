@@ -1,0 +1,144 @@
+openapi: 3.0.0
+info:
+  title: Weather API
+  version: 0.0.0
+tags:
+  - name: Weather
+paths:
+  /weatherforecast:
+    get:
+      operationId: WeatherForecasts_listForecasts
+      description: Get all weather forecasts
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeatherForecast'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Weather
+    post:
+      operationId: WeatherForecasts_addForecast
+      description: Add a new weather forecast
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherForecast'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Weather
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherForecast'
+components:
+  schemas:
+    BadRequestError:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - BAD_REQUEST
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Bad request error
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - timestamp
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: string
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when error occurred
+        requestId:
+          type: string
+          description: Request ID for tracking
+      description: Standard error response
+    WeatherForecast:
+      type: object
+      required:
+        - id
+        - date
+        - temperatureC
+        - temperatureF
+        - location
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the weather forecast
+        date:
+          type: string
+          format: date
+          description: Date of the weather forecast
+        temperatureC:
+          type: integer
+          format: int32
+          description: Temperature in Celsius
+        temperatureF:
+          type: integer
+          format: int32
+          description: Temperature in Fahrenheit (calculated)
+        summary:
+          type: string
+          description: Weather summary description
+        location:
+          type: string
+          description: Geographic location of the forecast
+      description: Represents a weather forecast for a specific location and date
+    WeatherForecastList:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeatherForecast'
+          description: Array of weather forecast items
+      description: List of weather forecasts
+servers:
+  - url: http://localhost:5008
+    description: Development server
+    variables: {}
