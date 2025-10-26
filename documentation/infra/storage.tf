@@ -6,12 +6,13 @@ resource "azurerm_storage_account" "docs" {
   account_replication_type = "LRS"
   account_kind             = "StorageV2"
 
-  static_website {
-    index_document     = "index.html"
-    error_404_document = "404.html"
-  }
-
   tags = local.common_tags
+}
+
+resource "azurerm_storage_account_static_website" "docs" {
+  storage_account_id = azurerm_storage_account.docs.id
+  index_document     = "index.html"
+  error_404_document = "404.html"
 }
 
 # Output the primary endpoint
