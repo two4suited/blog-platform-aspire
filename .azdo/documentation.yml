@@ -22,6 +22,7 @@ variables:
 stages:
   - stage: Build
     displayName: 'Build Documentation'
+    dependsOn: []
     jobs:
       - job: BuildDocs
         displayName: 'Build TechDocs'
@@ -49,6 +50,7 @@ stages:
 
   - stage: DeployInfrastructure
     displayName: 'Deploy Infrastructure'
+    dependsOn: []
     jobs:
       - job: TerraformApply
         displayName: 'Apply Terraform'
