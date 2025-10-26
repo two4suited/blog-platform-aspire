@@ -18,5 +18,5 @@ variable "location" {
 variable "custom_domain" {
   description = "Custom domain for documentation site (optional)"
   type        = string
-  default     = ""
+  default     = "docs.brianpsheridan.com"
 }

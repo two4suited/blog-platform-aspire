@@ -62,3 +62,22 @@ output "frontdoor_endpoint" {
   value       = azurerm_cdn_frontdoor_endpoint.docs.host_name
   description = "The Front Door endpoint hostname"
 }
+
+resource "azurerm_cdn_frontdoor_custom_domain" "docs" {
+  count = var.custom_domain != "" ? 1 : 0
+
+  name                     = "custom-domain-${var.project_name}"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.docs.id
+  host_name                = var.custom_domain
+
+  tls {
+    certificate_type    = "ManagedCertificate"   
+  }
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain_association" "docs" {
+  count = var.custom_domain != "" ? 1 : 0
+
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.docs[0].id
+  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.docs.id]
+}
