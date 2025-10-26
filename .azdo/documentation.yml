@@ -11,9 +11,13 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+parameters:
+  - name: projectName
+    displayName: 'Project Name'
+    type: string
+    default: 'bpsplatformdocs'
+
 variables:
-  - name: storageAccount
-    value: 'stplatformdocstest'
   - name: containerName
     value: '\$web'
   - name: TF_CLOUD_TOKEN
@@ -77,8 +81,10 @@ stages:
 
           - script: |
               cd documentation/infra
-              terraform apply -auto-approve
+              terraform apply -auto-approve -var="project_name=${{ parameters.projectName }}"
             displayName: 'Terraform Apply'
+            env:
+              TF_VAR_project_name: ${{ parameters.projectName }}
 
   - stage: Deploy
     displayName: 'Deploy to Azure'
@@ -109,10 +115,10 @@ stages:
                     scriptLocation: 'inlineScript'
                     inlineScript: |
                       # Remove old files
-                      az storage blob delete-batch --account-name $(storageAccount) --source $(containerName) --auth-mode login
+                      az storage blob delete-batch --account-name st${{ parameters.projectName }} --source $(containerName) --auth-mode login
                       
                       # Upload new files
-                      az storage blob upload-batch --account-name $(storageAccount) --destination $(containerName) --source $(System.ArtifactsDirectory)/documentation --overwrite true --auth-mode login
+                      az storage blob upload-batch --account-name st${{ parameters.projectName }} --destination $(containerName) --source $(System.ArtifactsDirectory)/documentation --overwrite true --auth-mode login
                   displayName: 'Deploy to Storage Account'
 
                 - task: AzureCLI@2
@@ -122,5 +128,5 @@ stages:
                     scriptLocation: 'inlineScript'
                     inlineScript: |
                       # Purge Front Door cache
-                      az afd endpoint purge --resource-group rg-platformdocs-test --profile-name fd-platformdocs-test --endpoint-name ep-platformdocs-test --content-paths "/*"
+                      az afd endpoint purge --resource-group rg-${{ parameters.projectName }} --profile-name fd-${{ parameters.projectName }} --endpoint-name ep-${{ parameters.projectName }} --content-paths "/*"
                   displayName: 'Purge Front Door Cache'

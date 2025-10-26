@@ -1,6 +1,6 @@
 
 resource "azurerm_cdn_frontdoor_profile" "docs" {
-  name                = "fd-${var.project_name}-${var.environment}"
+  name                = "fd-${var.project_name}"
   resource_group_name = azurerm_resource_group.docs.name
   sku_name            = "Standard_AzureFrontDoor"
 
@@ -8,7 +8,7 @@ resource "azurerm_cdn_frontdoor_profile" "docs" {
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "docs" {
-  name                     = "ep-${var.project_name}-${var.environment}"
+  name                     = "ep-${var.project_name}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.docs.id
   
   tags = local.common_tags

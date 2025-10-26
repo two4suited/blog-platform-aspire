@@ -9,16 +9,6 @@ variable "project_name" {
   }
 }
 
-variable "environment" {
-  description = "Environment name"
-  type        = string
-  default = "test"
-  validation {
-    condition     = contains(["dev", "test", "staging", "prod"], var.environment)
-    error_message = "Environment must be dev, test, staging, or prod."
-  }
-}
-
 variable "location" {
   description = "Azure region for resources"
   type        = string

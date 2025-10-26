@@ -1,9 +1,9 @@
-site_name: Platform Documentation
-site_description: Modern Development Platform Documentation
-site_author: Your Team
+site_name: Blog Platform Documentation
+site_description: Modern Cloud-Native Blog Platform with .NET Aspire
+site_author: Platform Team
 
-repo_url: https://github.com/yourorg/platform-docs
-edit_uri: edit/main/docs/
+repo_url: https://github.com/two4suited/blog-platform-aspire
+edit_uri: edit/main/documentation/docs/
 
 theme:
   name: material
@@ -14,11 +14,24 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.expand
+    - navigation.top
     - search.suggest
     - search.highlight
+    - content.code.copy
 
 nav:
   - Home: index.md
+  - Project Structure: project-structure.md
+  - Getting Started:
+      - Quick Start: getting-started/index.md
+  - Architecture:
+      - Overview: architecture/overview.md
+  - Development:
+      - Development Guide: development/index.md
+  - Infrastructure:
+      - Infrastructure Overview: infrastructure/index.md
+  - CI/CD:
+      - Pipelines: pipelines/index.md
 
 
 markdown_extensions:
