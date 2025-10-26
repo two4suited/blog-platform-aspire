@@ -72,17 +72,10 @@ stages:
                     scriptLocation: 'inlineScript'
                     inlineScript: |
                       # Remove old files
-                      az storage blob delete-batch \
-                        --account-name $(storageAccount) \
-                        --source $(containerName) \
-                        --auth-mode login
+                      az storage blob delete-batch --account-name $(storageAccount) --source $(containerName) --auth-mode login
                       
-                      az storage blob upload-batch \
-                        --account-name $(storageAccount) \
-                        --destination $(containerName) \
-                        --source $(System.ArtifactsDirectory)/documentation \
-                        --overwrite true \
-                        --auth-mode login
+                      # Upload new files
+                      az storage blob upload-batch --account-name $(storageAccount) --destination $(containerName) --source $(System.ArtifactsDirectory)/documentation --overwrite true --auth-mode login
                   displayName: 'Deploy to Storage Account'
 
                 - task: AzureCLI@2
@@ -92,9 +85,5 @@ stages:
                     scriptLocation: 'inlineScript'
                     inlineScript: |
                       # Purge Front Door cache
-                      az afd endpoint purge \
-                        --resource-group rg-platformdocs-prod \
-                        --profile-name fd-platformdocs-prod \
-                        --endpoint-name ep-platformdocs-prod \
-                        --content-paths "/*"
+                      az afd endpoint purge --resource-group rg-platformdocs-prod --profile-name fd-platformdocs-prod --endpoint-name ep-platformdocs-prod --content-paths "/*"
                   displayName: 'Purge Front Door Cache'
