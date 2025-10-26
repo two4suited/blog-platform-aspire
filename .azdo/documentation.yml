@@ -16,6 +16,8 @@ variables:
     value: 'stplatformdocstest'
   - name: containerName
     value: '\$web'
+  - name: TF_CLOUD_TOKEN
+    value: '$(TERRAFORM_CLOUD_TOKEN)'
 
 stages:
   - stage: Build
@@ -45,9 +47,40 @@ stages:
               publishLocation: 'Container'
             displayName: 'Publish Documentation Artifact'
 
+  - stage: DeployInfrastructure
+    displayName: 'Deploy Infrastructure'
+    jobs:
+      - job: TerraformApply
+        displayName: 'Apply Terraform'
+        steps:
+          - task: TerraformInstaller@0
+            inputs:
+              terraformVersion: 'latest'
+            displayName: 'Install Terraform'
+
+          - script: |
+              cat > ~/.terraformrc << EOF
+              credentials "app.terraform.io" {
+                token = "$(TERRAFORM_CLOUD_TOKEN)"
+              }
+              EOF
+            displayName: 'Configure Terraform Cloud Credentials'
+
+          - script: |
+              cd documentation/infra
+              terraform init
+            displayName: 'Terraform Init'
+
+          - script: |
+              cd documentation/infra
+              terraform apply -auto-approve
+            displayName: 'Terraform Apply'
+
   - stage: Deploy
     displayName: 'Deploy to Azure'
-    dependsOn: Build
+    dependsOn: 
+      - Build
+      - DeployInfrastructure
     condition: succeeded()
     jobs:
       - deployment: DeployDocs
