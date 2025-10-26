@@ -15,7 +15,7 @@ variables:
   - name: storageAccount
     value: 'stplatformdocstest'
   - name: containerName
-    value: '$web'
+    value: '\$web'
 
 stages:
   - stage: Build
