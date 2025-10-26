@@ -77,34 +77,40 @@ stages:
                         --source $(containerName) \
                         --auth-mode login
 
-                      # Upload new files
+                      # Upload new files with content types
                       az storage blob upload-batch \
                         --account-name $(storageAccount) \
                         --destination $(containerName) \
                         --source $(System.ArtifactsDirectory)/documentation \
                         --overwrite true \
-                        --auth-mode login
-
-                      # Set content types
-                      az storage blob update-batch \
-                        --account-name $(storageAccount) \
-                        --source $(containerName) \
-                        --pattern "*.html" \
+                        --auth-mode login \
                         --content-type "text/html" \
-                        --auth-mode login
+                        --pattern "*.html"
 
-                      az storage blob update-batch \
+                      az storage blob upload-batch \
                         --account-name $(storageAccount) \
-                        --source $(containerName) \
-                        --pattern "*.css" \
+                        --destination $(containerName) \
+                        --source $(System.ArtifactsDirectory)/documentation \
+                        --overwrite true \
+                        --auth-mode login \
                         --content-type "text/css" \
-                        --auth-mode login
+                        --pattern "*.css"
 
-                      az storage blob update-batch \
+                      az storage blob upload-batch \
                         --account-name $(storageAccount) \
-                        --source $(containerName) \
-                        --pattern "*.js" \
+                        --destination $(containerName) \
+                        --source $(System.ArtifactsDirectory)/documentation \
+                        --overwrite true \
+                        --auth-mode login \
                         --content-type "application/javascript" \
+                        --pattern "*.js"
+
+                      # Upload remaining files
+                      az storage blob upload-batch \
+                        --account-name $(storageAccount) \
+                        --destination $(containerName) \
+                        --source $(System.ArtifactsDirectory)/documentation \
+                        --overwrite true \
                         --auth-mode login
                   displayName: 'Deploy to Storage Account'
 
