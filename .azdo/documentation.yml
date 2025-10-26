@@ -12,7 +12,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - group: platform-docs-variables
   - name: storageAccount
     value: 'stplatformdocsprod'
   - name: containerName
@@ -68,7 +67,7 @@ stages:
 
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure-Service-Connection'
+                    azureSubscription: 'documentation'
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
@@ -111,7 +110,7 @@ stages:
 
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure-Service-Connection'
+                    azureSubscription: 'documentation'
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
