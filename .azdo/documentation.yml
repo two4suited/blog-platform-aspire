@@ -63,10 +63,12 @@ stages:
           - script: |
               cat > ~/.terraformrc << EOF
               credentials "app.terraform.io" {
-                token = "$(TERRAFORM_CLOUD_TOKEN)"
+                token = "$TERRAFORM_CLOUD_TOKEN"
               }
               EOF
             displayName: 'Configure Terraform Cloud Credentials'
+            env:
+              TERRAFORM_CLOUD_TOKEN: $(TERRAFORM_CLOUD_TOKEN)
 
           - script: |
               cd documentation/infra
