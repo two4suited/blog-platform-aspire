@@ -6,7 +6,7 @@ trigger:
     include:
       - documentation/docs/**
       - documentation/mkdocs.yml
-      - azure-pipelines.yml
+      - documentation.yml
 
 pool:
   vmImage: 'ubuntu-latest'
