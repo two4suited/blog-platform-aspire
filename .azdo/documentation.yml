@@ -13,7 +13,7 @@ pool:
 
 variables:
   - name: storageAccount
-    value: 'stplatformdocsprod'
+    value: 'stplatformdocstest'
   - name: containerName
     value: '$web'
 
@@ -26,7 +26,7 @@ stages:
         steps:
           - task: NodeTool@0
             inputs:
-              versionSpec: '18.x'
+              versionSpec: '24.x'
             displayName: 'Install Node.js'
 
           - script: |
