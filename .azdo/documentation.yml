@@ -7,6 +7,7 @@ trigger:
       - documentation/docs/**
       - documentation/mkdocs.yml
       - .azdo/documentation.yml
+      - documenation/infra/**
 
 pool:
   vmImage: 'ubuntu-latest'
