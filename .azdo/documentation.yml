@@ -1,0 +1,124 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - documentation/docs/**
+      - documentation/mkdocs.yml
+      - azure-pipelines.yml
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: platform-docs-variables
+  - name: storageAccount
+    value: 'stplatformdocsprod'
+  - name: containerName
+    value: '$web'
+
+stages:
+  - stage: Build
+    displayName: 'Build Documentation'
+    jobs:
+      - job: BuildDocs
+        displayName: 'Build TechDocs'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+            displayName: 'Install Node.js'
+
+          - script: |
+              npm install -g @techdocs/cli
+            displayName: 'Install TechDocs CLI'
+
+          - script: |
+              cd documentation
+              techdocs-cli generate --source-dir . --output-dir ./site
+            displayName: 'Generate Documentation'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'documentation/site'
+              ArtifactName: 'documentation'
+              publishLocation: 'Container'
+            displayName: 'Publish Documentation Artifact'
+
+  - stage: Deploy
+    displayName: 'Deploy to Azure'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployDocs
+        displayName: 'Deploy to Storage'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'documentation'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+                  displayName: 'Download Documentation'
+
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: 'Azure-Service-Connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Remove old files
+                      az storage blob delete-batch \
+                        --account-name $(storageAccount) \
+                        --source $(containerName) \
+                        --auth-mode login
+
+                      # Upload new files
+                      az storage blob upload-batch \
+                        --account-name $(storageAccount) \
+                        --destination $(containerName) \
+                        --source $(System.ArtifactsDirectory)/documentation \
+                        --overwrite true \
+                        --auth-mode login
+
+                      # Set content types
+                      az storage blob update-batch \
+                        --account-name $(storageAccount) \
+                        --source $(containerName) \
+                        --pattern "*.html" \
+                        --content-type "text/html" \
+                        --auth-mode login
+
+                      az storage blob update-batch \
+                        --account-name $(storageAccount) \
+                        --source $(containerName) \
+                        --pattern "*.css" \
+                        --content-type "text/css" \
+                        --auth-mode login
+
+                      az storage blob update-batch \
+                        --account-name $(storageAccount) \
+                        --source $(containerName) \
+                        --pattern "*.js" \
+                        --content-type "application/javascript" \
+                        --auth-mode login
+                  displayName: 'Deploy to Storage Account'
+
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: 'Azure-Service-Connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Purge Front Door cache
+                      az afd endpoint purge \
+                        --resource-group rg-platformdocs-prod \
+                        --profile-name fd-platformdocs-prod \
+                        --endpoint-name ep-platformdocs-prod \
+                        --content-paths "/*"
+                  displayName: 'Purge Front Door Cache'
