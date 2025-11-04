@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-client": "kiota generate -l typescript -c WeatherApiClient -n client -d ../generated/openapi/openapi.yaml -o ./src/client"
   },
   "dependencies": {
+
+    "@microsoft/kiota-bundle": "^1.0.0-preview.99",
+   
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
@@ -25,6 +29,6 @@
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
-    "vite": "^7.1.7"
+    "vite": "^7.1.12"
   }
 }
